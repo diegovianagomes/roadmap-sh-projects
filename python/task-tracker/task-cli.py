@@ -1,130 +1,12 @@
 #!/usr/bin/env python3
-import json
 import sys
-import os
-from datetime import datetime
-
-# File to store tasks
-TASKS_FILE = "tasks.json"
-
-# Function to read tasks from the JSON file
-def read_tasks():
-    if not os.path.exists(TASKS_FILE):
-        return []
-
-    try:
-        with open(TASKS_FILE, 'r') as file:
-            return json.load(file)
-    except json.JSONDecodeError:
-        return []
-
-# Function to write tasks to the JSON file
-def write_tasks(tasks):
-    with open(TASKS_FILE, 'w') as file:
-        json.dump(tasks, file, indent=2)
-
-# Function to add a new task
-def add_task(description):
-    tasks = read_tasks()
-
-    # Generate new task ID (max ID + 1, or 1 if no tasks exist)
-    task_id = 1
-    if tasks:
-        task_id = max(task["id"] for task in tasks) + 1
-
-    # Create timestamp for creation/update time
-    timestamp = datetime.now().isoformat()
-
-    # Create new task object
-    new_task = {
-        "id": task_id,
-        "description": description,
-        "status": "todo",
-        "createdAt": timestamp,
-        "updatedAt": timestamp
-    }
-
-    # Add to tasks list and save
-    tasks.append(new_task)
-    write_tasks(tasks)
-    print(f"Task added successfully (ID: {task_id})")
-
-# Function to list tasks
-def list_tasks(status_filter=None):
-    tasks = read_tasks()
-
-    if not tasks:
-        print("No tasks found.")
-        return
-
-    # Filter tasks by status if a filter is provided
-    if status_filter:
-        filtered_tasks = [task for task in tasks if task["status"] == status_filter]
-
-        if not filtered_tasks:
-            print(f"No tasks with status '{status_filter}' found.")
-            return
-
-        tasks = filtered_tasks
-
-    # Print tasks in a formatted way
-    print(f"{'ID':<5} {'Status':<12} {'Description':<50}")
-    print("-" * 67)
-
-    for task in tasks:
-        print(f"{task['id']:<5} {task['status']:<12} {task['description']}")
-
-# Function to update a task
-def update_task(task_id, new_description):
-    tasks = read_tasks()
-    task_id = int(task_id)  # Convert to integer
-
-    # Find the task by ID
-    for task in tasks:
-        if task["id"] == task_id:
-            task["description"] = new_description
-            task["updatedAt"] = datetime.now().isoformat()
-            write_tasks(tasks)
-            print(f"Task {task_id} updated successfully")
-            return
-
-    print(f"Task with ID {task_id} not found")
-
-# Function to delete a task
-def delete_task(task_id):
-    tasks = read_tasks()
-    task_id = int(task_id)  # Convert to integer
-
-    # Find the task by ID and remove it
-    for i, task in enumerate(tasks):
-        if task["id"] == task_id:
-            del tasks[i]
-            write_tasks(tasks)
-            print(f"Task {task_id} deleted successfully")
-            return
-
-    print(f"Task with ID {task_id} not found")
-
-# Function to change task status
-def change_task_status(task_id, new_status):
-    tasks = read_tasks()
-    task_id = int(task_id)  # Convert to integer
-
-    # Find the task by ID
-    for task in tasks:
-        if task["id"] == task_id:
-            task["status"] = new_status
-            task["updatedAt"] = datetime.now().isoformat()
-            write_tasks(tasks)
-            print(f"Task {task_id} marked as '{new_status}' successfully")
-            return
-
-    print(f"Task with ID {task_id} not found")
+from task_functions import add_task, list_tasks, update_task, delete_task, change_task_status
 
 # Main function
 def main():
+    # If no arguments are provided, enter interactive mode
     if len(sys.argv) < 2:
-        print("Usage: python task_cli.py <command> [options]")
+        interactive_mode()
         return
 
     command = sys.argv[1]
@@ -193,7 +75,69 @@ def main():
         print(f"Unknown command: {command}")
         print("Use 'python task_cli.py help' to see available commands")
 
+# Interface
+def interactive_mode():
+    print("=== Task Tracker Interactive Mode ===")
+
+    while True:
+        print("\nSelect an action:")
+        print("1. Add task")
+        print("2. List all tasks")
+        print("3. List tasks by status")
+        print("4. Update task")
+        print("5. Delete task")
+        print("6. Mark task as in-progress")
+        print("7. Mark task as done")
+        print("8. Help")
+        print("0. Exit")
+
+        choice = input("\nEnter your choice (0-8): ")
+
+        if choice == '0':
+            print("Goodbye!")
+            break
+        elif choice == '1':
+            description = input("Enter task description: ")
+            task_id = add_task(description)
+            print(f"Task added successfully (ID: {task_id})")
+        elif choice == '2':
+            list_tasks()
+        elif choice == '3':
+            print("Select status:")
+            print("1. Todo")
+            print("2. In-progress")
+            print("3. Done")
+            status_choice = input("Enter choice (1-3): ")
+            status_map = {"1": "todo", "2": "in-progress", "3": "done"}
+            if status_choice in status_map:
+                list_tasks(status_map[status_choice])
+            else:
+                print("Invalid choice")
+        elif choice == '4':
+            task_id = input("Enter task ID to update: ")
+            description = input("Enter new description: ")
+            update_task(task_id, description)
+        elif choice == '5':
+            task_id = input("Enter task ID to delete: ")
+            delete_task(task_id)
+        elif choice == '6':
+            task_id = input("Enter task ID to mark as in-progress: ")
+            change_task_status(task_id, "in-progress")
+        elif choice == '7':
+            task_id = input("Enter task ID to mark as done: ")
+            change_task_status(task_id, "done")
+        elif choice == '8':
+            print("\nTask Tracker Help:")
+            print("1. Add task - Create a new task")
+            print("2. List all tasks - Show all tasks regardless of status")
+            print("3. List tasks by status - Filter tasks by todo/in-progress/done")
+            print("4. Update task - Change the description of a task")
+            print("5. Delete task - Remove a task completely")
+            print("6. Mark task as in-progress - Change task status to in-progress")
+            print("7. Mark task as done - Change task status to done")
+            print("0. Exit - Close the application")
+        else:
+            print("Invalid choice. Please enter a number between 0 and 8.")
+
 if __name__ == "__main__":
     main()
-
-    

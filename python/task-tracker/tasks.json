@@ -12,6 +12,12 @@
     "status": "done",
     "createdAt": "2025-03-11T07:13:21.483543",
     "updatedAt": "2025-03-11T07:14:57.167917"
+  },
+  {
+    "id": 3,
+    "description": "Pedir ao contador o Balancete 2024",
+    "status": "in-progress",
+    "createdAt": "2025-03-11T07:32:26.726110",
+    "updatedAt": "2025-03-11T07:32:37.365328"
   }
 ]
-
