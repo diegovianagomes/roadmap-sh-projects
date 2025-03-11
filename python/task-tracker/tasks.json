@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "description": "Buy groceries and medicine",
+    "status": "in-progress",
+    "createdAt": "2025-03-11T07:12:53.385716",
+    "updatedAt": "2025-03-11T07:14:41.205438"
+  },
+  {
+    "id": 2,
+    "description": "Finish homework",
+    "status": "done",
+    "createdAt": "2025-03-11T07:13:21.483543",
+    "updatedAt": "2025-03-11T07:14:57.167917"
+  }
+]
+
